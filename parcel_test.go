@@ -43,7 +43,7 @@ func TestAddGetDelete(t *testing.T) {
 	// добавьте новую посылку в БД, убедитесь в отсутствии ошибки и наличии идентификатора
 	id, err := store.Add(parcel)
 	require.NoError(t, err)
-	assert.NotEmpty(t, id)
+	require.NotEmpty(t, id)
 	// get
 	// получите только что добавленную посылку, убедитесь в отсутствии ошибки
 	// проверьте, что значения всех полей в полученном объекте совпадают со значениями полей в переменной parcel
@@ -161,11 +161,7 @@ func TestGetByClient(t *testing.T) {
 	for _, parcel := range storedParcels {
 		// в parcelMap лежат добавленные посылки, ключ - идентификатор посылки, значение - сама посылка
 		// убедитесь, что все посылки из storedParcels есть в parcelMap
-		assert.Equal(t, parcel, parcelMap[parcel.Number])
 		// убедитесь, что значения полей полученных посылок заполнены верно
-		assert.Equal(t, parcel.Client, parcelMap[parcel.Number].Client)
-		assert.Equal(t, parcel.Address, parcelMap[parcel.Number].Address)
-		assert.Equal(t, parcel.Status, parcelMap[parcel.Number].Status)
-		assert.Equal(t, parcel.CreatedAt, parcelMap[parcel.Number].CreatedAt)
+		assert.Equal(t, parcel, parcelMap[parcel.Number])
 	}
 }

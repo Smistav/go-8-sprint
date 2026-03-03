@@ -23,12 +23,12 @@ func (s ParcelStore) Add(p Parcel) (int, error) {
 		sql.Named("address", p.Address),
 		sql.Named("created_at", p.CreatedAt))
 	if err != nil {
-		return 0, errors.New("ADD: failed to insert parcel")
+		return 0, errors.New("failed to insert parcel")
 	}
 	id, err := res.LastInsertId()
 	if err != nil {
 
-		return 0, errors.New("ADD: failed to get insert ID")
+		return 0, errors.New("failed to get insert ID")
 	}
 	return int(id), nil
 }
@@ -41,7 +41,6 @@ func (s ParcelStore) Get(number int) (Parcel, error) {
 	p := Parcel{}
 	err := row.Scan(&p.Number, &p.Client, &p.Status, &p.Address, &p.CreatedAt)
 	if err != nil {
-		fmt.Printf("failed to get parcel %d", number)
 		return Parcel{}, err
 	}
 	return p, nil
@@ -55,6 +54,7 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 	var res []Parcel
 	rows, err := s.db.Query("SELECT number, client, status, address, created_at FROM parcel WHERE client = :client", sql.Named("client", client))
 	if err != nil {
+		fmt.Printf("failed to query parcels for client %d", client)
 		return nil, err
 	}
 	defer rows.Close()
@@ -62,10 +62,14 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 		var p Parcel
 		err := rows.Scan(&p.Number, &p.Client, &p.Status, &p.Address, &p.CreatedAt)
 		if err != nil {
-			fmt.Printf("GETBYCLIENT: client number %d parcel not found", client)
+			fmt.Printf("failed to scan parcel for client %d", client)
 			return nil, err
 		}
 		res = append(res, p)
+	}
+	if len(res) == 0 {
+		fmt.Printf("no parcels found for client %d", client)
+		return []Parcel{}, nil
 	}
 	return res, nil
 }
@@ -76,7 +80,7 @@ func (s ParcelStore) SetStatus(number int, status string) error {
 		sql.Named("status", status),
 		sql.Named("number", number))
 	if err != nil {
-		fmt.Printf("SETSTATUS: parcel %d status not updated", number)
+		fmt.Printf("parcel %d status not updated", number)
 		return err
 	}
 	return nil
@@ -91,7 +95,7 @@ func (s ParcelStore) SetAddress(number int, address string) error {
 		sql.Named("status", ParcelStatusRegistered),
 	)
 	if err != nil {
-		fmt.Printf("SETADDRESS: parcel %d address not updated", number)
+		fmt.Printf("parcel %d address not updated", number)
 		return err
 	}
 	return nil
@@ -105,7 +109,7 @@ func (s ParcelStore) Delete(number int) error {
 		sql.Named("status", ParcelStatusRegistered),
 	)
 	if err != nil {
-		fmt.Printf("DELETE: parcel %d not deleted", number)
+		fmt.Printf("parcel %d not deleted", number)
 		return err
 	}
 	return nil
